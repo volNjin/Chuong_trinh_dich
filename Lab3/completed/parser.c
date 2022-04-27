@@ -91,7 +91,7 @@ void compileBlock5(void) {
 }
 
 // 10) ConstDecls::= ConstDecl ConstDecls
-// 11) ConstDecls::= e (epsilon)
+// 11) ConstDecls::= 
 void compileConstDecls(void) {
   while(lookAhead->tokenType == TK_IDENT) {
     compileConstDecl();
@@ -631,7 +631,6 @@ void compileExpression2(void) {
   compileTerm();
   compileExpression3();
 }
-
 
 // 79) Expression3 ::= SB_PLUS Term Expression3
 // 80) Expression3 ::= SB_MINUS Term Expression3
