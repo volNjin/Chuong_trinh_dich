@@ -9,7 +9,6 @@
 #include "reader.h"
 #include "scanner.h"
 #include "parser.h"
-#include "semantics.h"
 #include "error.h"
 #include "debug.h"
 
@@ -34,16 +33,14 @@ void eat(TokenType tokenType) {
 }
 
 void compileProgram(void) {
-  Object* program;
-
+  // TODO: create, enter, and exit program block
   eat(KW_PROGRAM);
   eat(TK_IDENT);
 
-  program = createProgramObject(currentToken->string);
-  enterBlock(program->progAttrs->scope);
+  Object * pro = createProgramObject(currentToken->string);
+  enterBlock(pro->progAttrs->scope);
 
   eat(SB_SEMICOLON);
-
   compileBlock();
   eat(SB_PERIOD);
 
@@ -185,7 +182,6 @@ void compileProcDecl(void) {
   eat(SB_SEMICOLON);
   exitBlock();
 }
-
 ConstantValue* compileUnsignedConstant(void) {
   // TODO: create and return an unsigned constant value
   ConstantValue* constValue;
@@ -197,6 +193,17 @@ ConstantValue* compileUnsignedConstant(void) {
     break;
   case TK_IDENT:
     eat(TK_IDENT);
+
+    Object* obj = lookupObject(currentToken->string);
+
+    if(obj == NULL) {
+      error(ERR_UNDECLARED_CONSTANT, currentToken->lineNo, currentToken->colNo);
+    } else if(obj->kind != OBJ_CONSTANT) {
+      error(ERR_INVALID_CONSTANT, currentToken->lineNo, currentToken->colNo);
+
+      constValue = (ConstantValue*)malloc(sizeof(ConstantValue));
+      *constValue = *(obj->constAttrs->value);
+    }
     break;
   case TK_CHAR:
     eat(TK_CHAR);
@@ -245,6 +252,16 @@ ConstantValue* compileConstant2(void) {
     break;
   case TK_IDENT:
     eat(TK_IDENT);
+
+    Object* obj = lookupObject(currentToken->string);
+
+    if(obj == NULL) {
+      error(ERR_UNDECLARED_CONSTANT, currentToken->lineNo, currentToken->colNo);
+    } else if(obj->kind != OBJ_CONSTANT) {
+      error(ERR_INVALID_CONSTANT, currentToken->lineNo, currentToken->colNo);
+    }
+
+    constValue = duplicateConstantValue(obj->constAttrs->value);
     break;
   default:
     error(ERR_INVALID_CONSTANT, lookAhead->lineNo, lookAhead->colNo);
@@ -283,6 +300,15 @@ Type* compileType(void) {
     break;
   case TK_IDENT:
     eat(TK_IDENT);
+
+    Object* obj = lookupObject(currentToken->string);
+
+    if(obj == NULL) {
+      error(ERR_UNDECLARED_TYPE, currentToken->lineNo, currentToken->colNo);
+    } else if(obj->kind != OBJ_TYPE) {
+      error(ERR_INVALID_TYPE, currentToken->lineNo, currentToken->colNo);
+    }
+    type = duplicateType(obj->typeAttrs->actualType);
     break;
   default:
     error(ERR_INVALID_TYPE, lookAhead->lineNo, lookAhead->colNo);
@@ -331,24 +357,28 @@ void compileParam(void) {
   switch (lookAhead->tokenType) {
   case TK_IDENT:
     paramKind = PARAM_VALUE;
+    eat(TK_IDENT);
+    param = createParameterObject(currentToken->string, paramKind, symtab->currentScope->owner);
+    eat(SB_COLON);
+
+    param->paramAttrs->type = compileBasicType();
+    declareObject(param);
     break;
   case KW_VAR:
     eat(KW_VAR);
     paramKind = PARAM_REFERENCE;
+    eat(TK_IDENT);
+    param = createParameterObject(currentToken->string, paramKind, symtab->currentScope->owner);
+    eat(SB_COLON);
+
+    param->paramAttrs->type = compileBasicType();
+    declareObject(param);
     break;
   default:
     error(ERR_INVALID_PARAMETER, lookAhead->lineNo, lookAhead->colNo);
     break;
   }
-
-  eat(TK_IDENT);
-  param = createParameterObject(currentToken->string, paramKind, symtab->currentScope->owner);
-  eat(SB_COLON);
-
-  param->paramAttrs->type = compileBasicType();
-  declareObject(param);
 }
-
 void compileStatements(void) {
   compileStatement();
   while (lookAhead->tokenType == SB_SEMICOLON) {
@@ -356,7 +386,6 @@ void compileStatements(void) {
     compileStatement();
   }
 }
-
 void compileStatement(void) {
   switch (lookAhead->tokenType) {
   case TK_IDENT:
@@ -390,12 +419,8 @@ void compileStatement(void) {
 }
 
 void compileLValue(void) {
-  Object* var;
-
   eat(TK_IDENT);
-  var = checkDeclaredLValueIdent(currentToken->string);
-  if (var->kind == OBJ_VARIABLE)
-    compileIndexes();
+  compileIndexes();
 }
 
 void compileAssignSt(void) {
@@ -440,13 +465,10 @@ void compileWhileSt(void) {
 void compileForSt(void) {
   eat(KW_FOR);
   eat(TK_IDENT);
-
   eat(SB_ASSIGN);
   compileExpression();
-
   eat(KW_TO);
   compileExpression();
-
   eat(KW_DO);
   compileStatement();
 }
@@ -465,7 +487,7 @@ void compileArguments(void) {
       eat(SB_COMMA);
       compileArgument();
     }
-    
+
     eat(SB_RPAR);
     break;
     // Check FOLLOW set 
@@ -496,7 +518,6 @@ void compileArguments(void) {
 
 void compileCondition(void) {
   compileExpression();
-
   switch (lookAhead->tokenType) {
   case SB_EQ:
     eat(SB_EQ);
@@ -620,8 +641,6 @@ void compileTerm2(void) {
 }
 
 void compileFactor(void) {
-  Object* obj;
-
   switch (lookAhead->tokenType) {
   case TK_NUMBER:
     eat(TK_NUMBER);
@@ -631,22 +650,14 @@ void compileFactor(void) {
     break;
   case TK_IDENT:
     eat(TK_IDENT);
-    // check if the identifier is declared
-    obj = checkDeclaredIdent(currentToken->string);
-
-    switch (obj->kind) {
-    case OBJ_CONSTANT:
-      break;
-    case OBJ_VARIABLE:
-      compileIndexes();
-      break;
-    case OBJ_PARAMETER:
-      break;
-    case OBJ_FUNCTION:
+    switch (lookAhead->tokenType) {
+    case SB_LPAR:
       compileArguments();
       break;
-    default: 
-      error(ERR_INVALID_FACTOR,currentToken->lineNo, currentToken->colNo);
+    case SB_LSEL:
+      compileIndexes();
+      break;
+    default:
       break;
     }
     break;

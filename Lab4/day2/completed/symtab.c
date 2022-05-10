@@ -313,6 +313,21 @@ void exitBlock(void) {
   symtab->currentScope = symtab->currentScope->outer;
 }
 
+Object* lookupObject(char *name) {
+  // TODO
+  Scope* currentScope = symtab->currentScope;
+  Object* obj = NULL;
+  while (currentScope != NULL)
+  {
+    obj = findObject(currentScope->objList, name);
+    if(obj != NULL) {
+      return obj;
+    }
+    currentScope = currentScope->outer;
+  }
+  return NULL;
+}
+
 void declareObject(Object* obj) {
   if (obj->kind == OBJ_PARAMETER) {
     Object* owner = symtab->currentScope->owner;
@@ -330,5 +345,3 @@ void declareObject(Object* obj) {
  
   addObject(&(symtab->currentScope->objList), obj);
 }
-
-
