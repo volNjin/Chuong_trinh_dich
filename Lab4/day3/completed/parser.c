@@ -219,7 +219,8 @@ ConstantValue* compileUnsignedConstant(void) {
   case TK_IDENT:
     eat(TK_IDENT);
     // TODO: check if the constant identifier is declared and get its value
-
+    obj = checkDeclaredConstant(currentToken->string);
+    constValue = duplicateConstantValue(obj->constAttrs->value);
     break;
   case TK_CHAR:
     eat(TK_CHAR);
@@ -268,6 +269,11 @@ ConstantValue* compileConstant2(void) {
   case TK_IDENT:
     eat(TK_IDENT);
     // TODO: check if the integer constant identifier is declared and get its value
+    obj = checkDeclaredConstant(currentToken->string);
+    if (obj->constAttrs->value->type == TP_INT)
+      constValue = duplicateConstantValue(obj->constAttrs->value);
+    else
+      error(ERR_UNDECLARED_INT_CONSTANT,currentToken->lineNo, currentToken->colNo);
     break;
   default:
     error(ERR_INVALID_CONSTANT, lookAhead->lineNo, lookAhead->colNo);
@@ -306,6 +312,8 @@ Type* compileType(void) {
   case TK_IDENT:
     eat(TK_IDENT);
     // TODO: check if the type idntifier is declared and get its actual type
+    obj = checkDeclaredType(currentToken->string);
+    type = duplicateType(obj->typeAttrs->actualType);
     break;
   default:
     error(ERR_INVALID_TYPE, lookAhead->lineNo, lookAhead->colNo);
