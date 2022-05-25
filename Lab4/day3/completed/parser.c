@@ -60,7 +60,7 @@ void compileBlock(void) {
     do {
       eat(TK_IDENT);
       // TODO: Check if a constant identifier is fresh in the block
-
+      checkFreshIdent(currentToken->string);
       // Create a constant object
       constObj = createConstantObject(currentToken->string);
       
@@ -89,7 +89,7 @@ void compileBlock2(void) {
     do {
       eat(TK_IDENT);
       // TODO: Check if a type identifier is fresh in the block
-
+      checkFreshIdent(currentToken->string);
       // create a type object
       typeObj = createTypeObject(currentToken->string);
       
@@ -118,7 +118,7 @@ void compileBlock3(void) {
     do {
       eat(TK_IDENT);
       // TODO: Check if a variable identifier is fresh in the block
-
+      checkFreshIdent(currentToken->string);
       // Create a variable object      
       varObj = createVariableObject(currentToken->string);
 
@@ -163,7 +163,7 @@ void compileFuncDecl(void) {
   eat(KW_FUNCTION);
   eat(TK_IDENT);
   // TODO: Check if a function identifier is fresh in the block
-
+  checkFreshIdent(currentToken->string);
   // create the function object
   funcObj = createFunctionObject(currentToken->string);
   // declare the function object
