@@ -1,0 +1,6 @@
+make --dry-run --always-make --keep-going --print-directory
+make: Entering directory '/Code/ctd/Lab4'
+make: Leaving directory '/Code/ctd/Lab4'
+ 
+make: *** No targets specified and no makefile found.  Stop.
+
