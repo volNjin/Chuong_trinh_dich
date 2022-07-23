@@ -39,6 +39,7 @@ enum OpCode {
   OP_AD,   // Add              t := t-1;  s[t] := s[t] + s[t+1];
   OP_SB,   // Substract        t := t-1;  s[t] := s[t] - s[t+1];
   OP_ML,   // Multiple         t := t-1;  s[t] := s[t] * s[t+1];
+  OP_POW,  // Power             t := t-1, s[t]  := pow(s[t],s[t+1]); 
   OP_DV,   // Divide           t := t-1;  s[t] := s[t] / s[t+1];
   OP_NEG,  // Negative         s[t] := - s[t];
   OP_CV,   // Copy Top         s[t+1] := s[t]; t := t + 1;
@@ -95,6 +96,7 @@ int emitWLN(CodeBlock* codeBlock);
 int emitAD(CodeBlock* codeBlock);
 int emitSB(CodeBlock* codeBlock);
 int emitML(CodeBlock* codeBlock);
+int emitPOW(CodeBlock* codeBlock);
 int emitDV(CodeBlock* codeBlock);
 int emitNEG(CodeBlock* codeBlock);
 int emitCV(CodeBlock* codeBlock);

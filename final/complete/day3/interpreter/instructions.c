@@ -92,6 +92,7 @@ void printInstruction(Instruction* inst) {
   case OP_AD: printf("AD"); break;
   case OP_SB: printf("SB"); break;
   case OP_ML: printf("ML"); break;
+  case OP_POW: printf("POW"); break;
   case OP_DV: printf("DV"); break;
   case OP_NEG: printf("NEG"); break;
   case OP_CV: printf("CV"); break;

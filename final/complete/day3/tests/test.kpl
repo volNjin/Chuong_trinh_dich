@@ -1,0 +1,8 @@
+program test;
+var n: integer;
+    m:integer;
+Begin
+    n:=readi;
+    m:=readi;
+    call writeI(n**m);
+End.

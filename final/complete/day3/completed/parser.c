@@ -790,6 +790,16 @@ Type* compileTerm2(Type* argType1) {
 
     resultType = compileTerm2(argType1);
     break;
+  case SB_POWER:
+    eat(SB_POWER);
+    checkIntType(argType1);
+    argType2 = compileFactor();
+    checkIntType(argType2);
+
+    genPOW();
+
+    resultType = compileTerm2(argType1);
+    break;
     // check the FOLLOW set
   case SB_PLUS:
   case SB_MINUS:
@@ -839,42 +849,42 @@ Type* compileFactor(void) {
     case OBJ_CONSTANT:
       switch (obj->constAttrs->value->type) {
       case TP_INT:
-	type = intType;
-	genLC(obj->constAttrs->value->intValue);
-	break;
+	      type = intType;
+	      genLC(obj->constAttrs->value->intValue);
+	      break;
       case TP_CHAR:
-	type = charType;
-	genLC(obj->constAttrs->value->charValue);
-	break;
+	      type = charType;
+	      genLC(obj->constAttrs->value->charValue);
+	      break;
       default:
-	break;
+	      break;
       }
       break;
     case OBJ_VARIABLE:
       if (obj->varAttrs->type->typeClass == TP_ARRAY) {
-	genVariableAddress(obj);
-	type = compileIndexes(obj->varAttrs->type);
-	genLI();
+	      genVariableAddress(obj);
+	      type = compileIndexes(obj->varAttrs->type);
+	      genLI();
       } else {
-	type = obj->varAttrs->type;
-	genVariableValue(obj);
+	      type = obj->varAttrs->type;
+	      genVariableValue(obj);
       }
       break;
     case OBJ_PARAMETER:
       type = obj->paramAttrs->type;
       genParameterValue(obj);
       if (obj->paramAttrs->kind == PARAM_REFERENCE)
-	genLI();
+	      genLI();
       break;
     case OBJ_FUNCTION:
       if (isPredefinedFunction(obj)) {
-	compileArguments(obj->funcAttrs->paramList);
-	genPredefinedFunctionCall(obj);
+	      compileArguments(obj->funcAttrs->paramList);
+	      genPredefinedFunctionCall(obj);
       } else {
-	genINT(4);
-	compileArguments(obj->funcAttrs->paramList);
-	genDCT(4+obj->funcAttrs->paramCount);
-	genFunctionCall(obj);
+	      genINT(4);
+	      compileArguments(obj->funcAttrs->paramList);
+	      genDCT(4+obj->funcAttrs->paramCount);
+	      genFunctionCall(obj);
       }
       type = obj->funcAttrs->returnType;
       break;

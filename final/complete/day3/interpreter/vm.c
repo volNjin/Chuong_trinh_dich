@@ -6,6 +6,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 //#include <conio.h>
 
 #include "vm.h"
@@ -98,17 +99,17 @@ int run(void) {
     case OP_LA: 
       t ++;
       if (checkStack())
-	stack[t] = base(code[pc].p) + code[pc].q;
+	      stack[t] = base(code[pc].p) + code[pc].q;
       break;
     case OP_LV: 
       t ++;
       if (checkStack())
-	stack[t] = stack[base(code[pc].p) + code[pc].q];
+	      stack[t] = stack[base(code[pc].p) + code[pc].q];
       break;
     case OP_LC: 
       t ++;
       if (checkStack())
-	stack[t] = code[pc].q;
+	      stack[t] = code[pc].q;
       break;
     case OP_LI: 
       stack[t] = stack[stack[t]];
@@ -126,7 +127,7 @@ int run(void) {
       break;
     case OP_FJ: 
       if (stack[t] == FALSE) 
-	pc = code[pc].q - 1;
+	      pc = code[pc].q - 1;
       t --;
       checkStack();
       break;
@@ -187,19 +188,23 @@ int run(void) {
     case OP_AD:
       t --;
       if (checkStack()) 
-	stack[t] += stack[t+1];
+	      stack[t] += stack[t+1];
       break;
     case OP_SB:
       t --;
       if (checkStack()) 
-	stack[t] -= stack[t+1];
+	      stack[t] -= stack[t+1];
       break;
     case OP_ML:
       t --;
       if (checkStack()) 
-	stack[t] *= stack[t+1];
+	      stack[t] *= stack[t+1];
       break;
-
+    case OP_POW:
+      t--;
+      if(checkStack())
+        stack[t] = pow(stack[t],stack[t+1]);
+      break;
     case OP_DV: 
       t --;
       if (checkStack()) {

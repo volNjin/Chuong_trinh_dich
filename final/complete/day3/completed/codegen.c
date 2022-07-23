@@ -179,6 +179,9 @@ void genML(void) {
   emitML(codeBlock);
 }
 
+void genPOW(void){
+  emitPOW(codeBlock);
+}
 void genDV(void) {
   emitDV(codeBlock);
 }
