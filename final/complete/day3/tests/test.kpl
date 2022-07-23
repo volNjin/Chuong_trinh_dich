@@ -5,6 +5,6 @@ var n: integer;
 Begin
     n:=readi;
     tmp:=readi;
-    i:=n>tmp ? n:tmp;
+    i:= if n>tmp then n else tmp;
     call writeI(i);
 End.

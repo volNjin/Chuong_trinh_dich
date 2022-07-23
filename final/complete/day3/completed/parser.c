@@ -454,76 +454,88 @@ void compileAssignSt(void) {
   varType = compileLValue();
   
   eat(SB_ASSIGN);
-  expType = compileExpression();
-  op = lookAhead->tokenType;
-  if(lookAhead->tokenType == SB_EQ || lookAhead->tokenType == SB_NEQ || lookAhead->tokenType == SB_LE || lookAhead->tokenType == SB_LT
-      || lookAhead->tokenType == SB_GE || lookAhead->tokenType == SB_GT) {
-    switch (op)
-    {
-    case SB_EQ:
-      eat(SB_EQ);
-      break;
-    case SB_NEQ:
-      eat(SB_NEQ);
-      break;
-    case SB_LE:
-      eat(SB_LE);
-      break;
-    case SB_LT:
-      eat(SB_LT);
-      break;
-    case SB_GE:
-      eat(SB_GE);
-      break;
-    case SB_GT:
-      eat(SB_GT);
-      break;
-    default:
-      break;
-    }
-    
-    conExpType = compileExpression();
-    checkTypeEquality(expType, conExpType);
-
-    switch (op)
-    {
-    case SB_EQ:
-      genEQ();
-      break;
-    case SB_NEQ:
-      genNE();
-      break;
-    case SB_LE:
-      genLE();
-      break;
-    case SB_LT:
-      genLT();
-      break;
-    case SB_GE:
-      genGE();
-      break;
-    case SB_GT:
-      genGT();
-      break;
-    default:
-      break;
-    }
-    fjInstruction = genFJ(DC_VALUE);
-    eat(SB_QUESTION);
-    returnType1 = compileExpression();
-    // genST();
-    eat(SB_COLON);
-    jInstruction = genJ(DC_VALUE);
-    updateFJ(fjInstruction, getCurrentCodeAddress());
-    returnType2 = compileExpression();
-    checkTypeEquality(returnType1, returnType2);
-    checkTypeEquality(returnType1, varType);
-    updateJ(jInstruction, getCurrentCodeAddress());
+  if(lookAhead->tokenType==KW_IF){
+      eat(KW_IF);
+      compileCondition();
+      eat(KW_THEN);
+      fjInstruction = genFJ(DC_VALUE);
+      returnType1 = compileExpression();
+      eat(KW_ELSE);
+      jInstruction = genJ(DC_VALUE);
+      updateFJ(fjInstruction, getCurrentCodeAddress());
+      returnType2 = compileExpression();
+      checkTypeEquality(returnType1, returnType2);
+      checkTypeEquality(returnType1, varType);
+      updateJ(jInstruction, getCurrentCodeAddress());
+      genST();
   } else {
-    checkTypeEquality(varType, expType);
-  }
+      expType = compileExpression();
+      op = lookAhead->tokenType;
+      if(op == SB_EQ || op == SB_NEQ || op == SB_LE || op == SB_LT || op == SB_GE || op == SB_GT) {
+        switch (op){
+          case SB_EQ:
+            eat(SB_EQ);
+            break;
+          case SB_NEQ:
+            eat(SB_NEQ);
+            break;
+          case SB_LE:
+            eat(SB_LE);
+            break;
+          case SB_LT:
+            eat(SB_LT);
+            break;
+          case SB_GE:
+            eat(SB_GE);
+            break;
+          case SB_GT:
+            eat(SB_GT);
+            break;
+          default:
+            break;
+          }
+    
+        conExpType = compileExpression();
+        checkTypeEquality(expType, conExpType);
 
-  genST();
+        switch (op){
+          case SB_EQ:
+            genEQ();
+            break;
+          case SB_NEQ:
+            genNE();
+            break;
+          case SB_LE:
+            genLE();
+            break;
+          case SB_LT:
+            genLT();
+            break;
+          case SB_GE:
+            genGE();
+            break;
+          case SB_GT:
+            genGT();
+            break;
+          default:
+            break;
+      }
+        fjInstruction = genFJ(DC_VALUE);
+        eat(SB_QUESTION);
+        returnType1 = compileExpression();
+        eat(SB_COLON);
+        jInstruction = genJ(DC_VALUE);
+        updateFJ(fjInstruction, getCurrentCodeAddress());
+        returnType2 = compileExpression();
+        checkTypeEquality(returnType1, returnType2);
+        checkTypeEquality(returnType1, varType);
+        updateJ(jInstruction, getCurrentCodeAddress());
+        genST();
+    } else {
+        checkTypeEquality(varType, expType);
+        genST();
+    }
+  }  
 }
 
 void compileCallSt(void) {
