@@ -1,0 +1,18 @@
+PROGRAM TEST;
+VAR X:CHAR;
+    N:INTEGER;
+    i:INTEGER;
+    j:DOUBLE;
+BEGIN
+    N:=READI;
+    i:=N**22**2;
+    SWITCH N
+    BEGIN   
+        CASE 10 : X:='A'; BREAK;
+        CASE 8 : X:='B'; BREAK;
+        CASE 6 : X:='C'; BREAK;
+        CASE 4 : X:='D'; BREAK;
+        CASE 2 : X:='F'; BREAK;
+        DEFAULT : BREAK;
+    END;
+END.

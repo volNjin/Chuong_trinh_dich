@@ -11,6 +11,8 @@
 
 enum TypeClass {
   TP_INT,
+  TP_DOUBLE,
+  TP_STRING,
   TP_CHAR,
   TP_ARRAY
 };
@@ -45,6 +47,8 @@ struct ConstantValue_ {
   union {
     int intValue;
     char charValue;
+    double doubleValue;
+    char* stringValue;
   };
 };
 

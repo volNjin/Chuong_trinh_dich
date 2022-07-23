@@ -1,0 +1,15 @@
+make --dry-run --always-make --keep-going --print-directory
+make: Entering directory '/Code/ctd/Lab4/day4/completed'
+gcc -c -Wall main.c
+gcc -c -Wall parser.c
+gcc -c -Wall scanner.c
+gcc -c -Wall reader.c
+gcc -c -Wall charcode.c
+gcc -c -Wall token.c
+gcc -c -Wall error.c
+gcc -c -Wall symtab.c
+gcc -c -Wall semantics.c
+gcc -c -Wall debug.c
+gcc main.o parser.o scanner.o reader.o charcode.o token.o error.o symtab.o semantics.o debug.o -o kplc
+make: Leaving directory '/Code/ctd/Lab4/day4/completed'
+ 

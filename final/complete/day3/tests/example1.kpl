@@ -1,0 +1,16 @@
+program thigk;
+var n: integer;
+    i: integer;
+    max: integer;
+    tmp: integer;
+Begin
+    n:= readi;
+    max:= readi;
+    for i:=2 to n do
+        Begin
+            tmp:=readi;
+            if tmp > max then max:=tmp;
+        End;
+    call writeln;
+    call writeI(max);
+End.

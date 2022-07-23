@@ -1,0 +1,17 @@
+program thigk;
+var n: integer;
+    i: integer;
+    max: integer;
+    a: array (.100.) of integer;
+Begin
+    n:= readi;
+    max:= 0;
+    call writeln;
+    for i:=1 to n do
+        Begin
+            a(.i.):=readi;
+            if a(.i.) > max then max:=a(.i.);
+        End;
+    call writeln;
+    call writeI(max);
+End.

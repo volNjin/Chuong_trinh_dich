@@ -33,6 +33,17 @@ Type* makeCharType(void) {
   return type;
 }
 
+Type* makeDoubleType(void){
+  Type* type = (Type*)malloc(sizeof(Type));
+  type->typeClass = TP_DOUBLE;
+  return type;
+}
+Type* makeStringType(void){
+  Type* type = (Type*)malloc(sizeof(Type));
+  type->typeClass = TP_STRING;
+  return type;
+}
+
 Type* makeArrayType(int arraySize, Type* elementType) {
   Type* type = (Type*) malloc(sizeof(Type));
   type->typeClass = TP_ARRAY;
@@ -65,6 +76,8 @@ void freeType(Type* type) {
   switch (type->typeClass) {
   case TP_INT:
   case TP_CHAR:
+  case TP_DOUBLE:
+  case TP_STRING:
     free(type);
     break;
   case TP_ARRAY:
@@ -89,7 +102,18 @@ ConstantValue* makeCharConstant(char ch) {
   value->charValue = ch;
   return value;
 }
-
+ConstantValue* makeDoubleConstant(double d){
+  ConstantValue* value = (ConstantValue*) malloc(sizeof(ConstantValue));
+  value->type = TP_DOUBLE;
+  value->doubleValue = d;
+  return value;
+}
+ConstantValue* makeStringConstant(char* str){
+  ConstantValue* value = (ConstantValue*) malloc(sizeof(ConstantValue));
+  value->type = TP_STRING;
+  strcpy(value->stringValue,str);
+  return value;
+}
 ConstantValue* duplicateConstantValue(ConstantValue* v) {
   ConstantValue* value = (ConstantValue*) malloc(sizeof(ConstantValue));
   value->type = v->type;

@@ -288,6 +288,14 @@ Type* compileType(void) {
     eat(KW_CHAR); 
     type = makeCharType();
     break;
+  case KW_DOUBLE:
+    eat(KW_DOUBLE);
+    type=makeDoubleType();
+    break;
+  case KW_STRING:
+    eat(KW_STRING);
+    type=makeStringType();
+    break;
   case KW_ARRAY:
     eat(KW_ARRAY);
     eat(SB_LSEL);
@@ -401,10 +409,18 @@ void compileStatement(void) {
   case KW_FOR:
     compileForSt();
     break;
+  case KW_SWITCH:
+    compileSwitchSt();
+    break;
+  case KW_BREAK:
+    eat(KW_BREAK);
+    break;
     // EmptySt needs to check FOLLOW tokens
   case SB_SEMICOLON:
   case KW_END:
   case KW_ELSE:
+  case KW_CASE:
+  case KW_DEFAULT:
     break;
     // Error occurs
   default:
@@ -512,6 +528,38 @@ void compileForSt(void) {
   compileStatement();
 }
 
+void compileSwitchSt(void){
+  eat(KW_SWITCH);
+  compileExpression();
+  if(lookAhead->tokenType==KW_BEGIN) {
+    eat(KW_BEGIN);
+    switch(lookAhead->tokenType){
+      case KW_CASE:
+        while(lookAhead->tokenType==KW_CASE){
+          eat(KW_CASE);
+          compileConstant();
+          eat(SB_COLON);
+          compileStatements();
+        }
+      case KW_DEFAULT:
+        eat(KW_DEFAULT);
+        eat(SB_COLON);
+        compileStatements();
+        break;
+      default:
+        error(ERR_INVALID_STATEMENT, currentToken->lineNo, currentToken->colNo);
+        break;
+    }
+  } else {
+    error(ERR_INVALID_STATEMENT, currentToken->lineNo, currentToken->colNo);
+  }
+  if(lookAhead->tokenType==KW_END){
+    eat(KW_END);
+    eat(SB_SEMICOLON);
+  } else {
+    error(ERR_INVALID_STATEMENT, currentToken->lineNo, currentToken->colNo);
+  }
+}
 void compileArgument(Object* param) {
   Type* type;
 
@@ -610,7 +658,7 @@ void compileCondition(void) {
 
 Type* compileExpression(void) {
   Type* type;
-  
+  Type* type1, *type2;
   switch (lookAhead->tokenType) {
   case SB_PLUS:
     eat(SB_PLUS);
@@ -621,6 +669,16 @@ Type* compileExpression(void) {
     eat(SB_MINUS);
     type = compileExpression2();
     checkIntType(type);
+    break;
+  case KW_IF:
+    eat(KW_IF);
+    compileCondition();
+    eat(KW_THEN);
+    type1=compileExpression();
+    eat(KW_ELSE);
+    type2=compileExpression();
+    if(compareType(type1, type2)==1) type=type1;
+    else error(ERR_INVALID_EXPRESSION, currentToken->lineNo, currentToken->colNo);
     break;
   default:
     type = compileExpression2();
@@ -670,6 +728,7 @@ void compileExpression3(void) {
   case KW_END:
   case KW_ELSE:
   case KW_THEN:
+  case KW_BEGIN:
     break;
   default:
     error(ERR_INVALID_EXPRESSION, lookAhead->lineNo, lookAhead->colNo);
@@ -701,6 +760,12 @@ void compileTerm2(void) {
     checkIntType(type);
     compileTerm2();
     break;
+  case SB_POWER:
+    eat(SB_POWER);
+    type=compileFactor();
+    checkIntType(type);
+    compileTerm2();
+    break;
     // check the FOLLOW set
   case SB_PLUS:
   case SB_MINUS:
@@ -719,6 +784,7 @@ void compileTerm2(void) {
   case KW_END:
   case KW_ELSE:
   case KW_THEN:
+  case KW_BEGIN:
     break;
   default:
     error(ERR_INVALID_TERM, lookAhead->lineNo, lookAhead->colNo);
@@ -746,20 +812,20 @@ Type* compileFactor(void) {
     case OBJ_CONSTANT:
       switch (obj->constAttrs->value->type) {
       case TP_INT:
-	type = intType;
-	break;
+	      type = intType;
+	      break;
       case TP_CHAR:
-	type = charType;
-	break;
+	      type = charType;
+	      break;
       default:
-	break;
+	      break;
       }
       break;
     case OBJ_VARIABLE:
       if (obj->varAttrs->type->typeClass == TP_ARRAY)
-	type = compileIndexes(obj->varAttrs->type);
+	      type = compileIndexes(obj->varAttrs->type);
       else 
-	type = obj->varAttrs->type;
+	      type = obj->varAttrs->type;
       break;
     case OBJ_PARAMETER:
       type = obj->paramAttrs->type;
@@ -776,7 +842,6 @@ Type* compileFactor(void) {
   default:
     error(ERR_INVALID_FACTOR, lookAhead->lineNo, lookAhead->colNo);
   }
-  
   return type;
 }
 
