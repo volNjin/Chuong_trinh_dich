@@ -389,6 +389,12 @@ void compileStatement(void) {
   case KW_FOR:
     compileForSt();
     break;
+  case KW_SWITCH:
+    compileSwitchSt();
+    break;
+  case KW_BREAK:
+    eat(KW_BREAK);
+    break;
     // EmptySt needs to check FOLLOW tokens
   case SB_SEMICOLON:
   case KW_END:
@@ -438,14 +444,84 @@ Type* compileLValue(void) {
 }
 
 void compileAssignSt(void) {
-  Type* varType;
-  Type* expType;
+  Type *varType;
+  Type *expType;
+  Type *conExpType;
+  Type *returnType1, *returnType2;
+  TokenType op;
+  Instruction *fjInstruction, *jInstruction;
 
   varType = compileLValue();
   
   eat(SB_ASSIGN);
   expType = compileExpression();
-  checkTypeEquality(varType, expType);
+  op = lookAhead->tokenType;
+  if(lookAhead->tokenType == SB_EQ || lookAhead->tokenType == SB_NEQ || lookAhead->tokenType == SB_LE || lookAhead->tokenType == SB_LT
+      || lookAhead->tokenType == SB_GE || lookAhead->tokenType == SB_GT) {
+    switch (op)
+    {
+    case SB_EQ:
+      eat(SB_EQ);
+      break;
+    case SB_NEQ:
+      eat(SB_NEQ);
+      break;
+    case SB_LE:
+      eat(SB_LE);
+      break;
+    case SB_LT:
+      eat(SB_LT);
+      break;
+    case SB_GE:
+      eat(SB_GE);
+      break;
+    case SB_GT:
+      eat(SB_GT);
+      break;
+    default:
+      break;
+    }
+    
+    conExpType = compileExpression();
+    checkTypeEquality(expType, conExpType);
+
+    switch (op)
+    {
+    case SB_EQ:
+      genEQ();
+      break;
+    case SB_NEQ:
+      genNE();
+      break;
+    case SB_LE:
+      genLE();
+      break;
+    case SB_LT:
+      genLT();
+      break;
+    case SB_GE:
+      genGE();
+      break;
+    case SB_GT:
+      genGT();
+      break;
+    default:
+      break;
+    }
+    fjInstruction = genFJ(DC_VALUE);
+    eat(SB_QUESTION);
+    returnType1 = compileExpression();
+    // genST();
+    eat(SB_COLON);
+    jInstruction = genJ(DC_VALUE);
+    updateFJ(fjInstruction, getCurrentCodeAddress());
+    returnType2 = compileExpression();
+    checkTypeEquality(returnType1, returnType2);
+    checkTypeEquality(returnType1, varType);
+    updateJ(jInstruction, getCurrentCodeAddress());
+  } else {
+    checkTypeEquality(varType, expType);
+  }
 
   genST();
 }
@@ -554,7 +630,38 @@ void compileForSt(void) {
   genDCT(1);
 
 }
-
+void compileSwitchSt(void){
+  eat(KW_SWITCH);
+  compileExpression();
+  if(lookAhead->tokenType==KW_BEGIN) {
+    eat(KW_BEGIN);
+    switch(lookAhead->tokenType){
+      case KW_CASE:
+        while(lookAhead->tokenType==KW_CASE){
+          eat(KW_CASE);
+          compileConstant();
+          eat(SB_COLON);
+          compileStatements();
+        }
+      case KW_DEFAULT:
+        eat(KW_DEFAULT);
+        eat(SB_COLON);
+        compileStatements();
+        break;
+      default:
+        error(ERR_INVALID_STATEMENT, currentToken->lineNo, currentToken->colNo);
+        break;
+    }
+  } else {
+    error(ERR_INVALID_STATEMENT, currentToken->lineNo, currentToken->colNo);
+  }
+  if(lookAhead->tokenType==KW_END){
+    eat(KW_END);
+    eat(SB_SEMICOLON);
+  } else {
+    error(ERR_INVALID_STATEMENT, currentToken->lineNo, currentToken->colNo);
+  }
+}
 void compileArgument(Object* param) {
   Type* type;
 
@@ -738,12 +845,14 @@ Type* compileExpression3(Type* argType1) {
   case KW_DO:
   case SB_RPAR:
   case SB_COMMA:
+  case SB_COLON:
   case SB_EQ:
   case SB_NEQ:
   case SB_LE:
   case SB_LT:
   case SB_GE:
   case SB_GT:
+  case SB_QUESTION:
   case SB_RSEL:
   case SB_SEMICOLON:
   case KW_END:
@@ -807,12 +916,14 @@ Type* compileTerm2(Type* argType1) {
   case KW_DO:
   case SB_RPAR:
   case SB_COMMA:
+  case SB_COLON:
   case SB_EQ:
   case SB_NEQ:
   case SB_LE:
   case SB_LT:
   case SB_GE:
   case SB_GT:
+  case SB_QUESTION:
   case SB_RSEL:
   case SB_SEMICOLON:
   case KW_END:

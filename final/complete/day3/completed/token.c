@@ -86,6 +86,10 @@ char *tokenToString(TokenType tokenType) {
   case KW_DO: return "keyword DO";
   case KW_FOR: return "keyword FOR";
   case KW_TO: return "keyword TO";
+  case KW_SWITCH: return "keyword SWITCH";
+  case KW_CASE: return "keyword CASE";
+  case KW_BREAK: return "keyword BREAK";
+  case KW_DEFAULT: return "keyword DEFAULT";
 
   case SB_SEMICOLON: return "\';\'";
   case SB_COLON: return "\':\'";
@@ -107,6 +111,7 @@ char *tokenToString(TokenType tokenType) {
   case SB_RPAR: return "\')\'";
   case SB_LSEL: return "\'(.\'";
   case SB_RSEL: return "\'.)\'";
+  case SB_QUESTION: return "\'?\'";
   default: return "";
   }
 }

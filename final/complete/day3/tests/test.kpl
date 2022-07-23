@@ -1,8 +1,10 @@
 program test;
 var n: integer;
-    m:integer;
+    i: integer;
+    tmp: integer;     
 Begin
     n:=readi;
-    m:=readi;
-    call writeI(n**m);
+    tmp:=readi;
+    i:=n>tmp ? n:tmp;
+    call writeI(i);
 End.
