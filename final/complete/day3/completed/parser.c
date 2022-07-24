@@ -24,6 +24,8 @@ extern Type* intType;
 extern Type* charType;
 extern SymTab* symtab;
 
+extern CodeBlock *codeBlock;
+
 void scan(void) {
   Token* tmp = currentToken;
   currentToken = lookAhead;
@@ -459,10 +461,46 @@ Type* compileLValue(void) {
   return varType;
 }
 
+Type* compileMultLValue(Object **resVar) {
+  Object* var;
+  Type* varType;
+
+  eat(TK_IDENT);
+  
+  var = checkDeclaredLValueIdent(currentToken->string);
+
+  switch (var->kind) {
+  case OBJ_VARIABLE:
+    genVariableAddress(var);
+
+    if (var->varAttrs->type->typeClass == TP_ARRAY) {
+      varType = compileIndexes(var->varAttrs->type);
+    }
+    else
+      varType = var->varAttrs->type;
+    break;
+  case OBJ_PARAMETER:
+    if (var->paramAttrs->kind == PARAM_VALUE)
+      genParameterAddress(var);
+    else genParameterValue(var);
+
+    varType = var->paramAttrs->type;
+    break;
+  case OBJ_FUNCTION:
+    genReturnValueAddress(var);
+    varType = var->funcAttrs->returnType;
+    break;
+  default: 
+    error(ERR_INVALID_LVALUE,currentToken->lineNo, currentToken->colNo);
+  }
+  *resVar = var;
+  return varType;
+}
+
 void compileAssignSt(void) {
   Type *varType;
   Type *expType;
-  Type *conExpType;
+  /*Type *conExpType;
   Type *returnType1, *returnType2;
   TokenType op;
   Instruction *fjInstruction, *jInstruction;
@@ -557,7 +595,61 @@ void compileAssignSt(void) {
         checkTypeEquality(varType, expType);
       }
       genST();
-  }  
+  }  */
+  int lVal = 0, rVal = 0;
+  int p[1000], q[1000];
+  Instruction *pc;
+  Type *lType[1000], *rType[1000];
+
+  varType = compileLValue();
+  lType[lVal] = varType;
+  lVal++;
+  while(lookAhead->tokenType == SB_COMMA){
+  	eat(SB_COMMA);
+  	varType = compileLValue();
+  	lType[lVal] = varType;
+  	lVal++;
+  }
+  
+  eat(SB_ASSIGN);
+  
+  expType = compileExpression();
+  rType[rVal] = expType;
+  rVal++;
+  while(lookAhead->tokenType == SB_COMMA){
+  	eat(SB_COMMA);
+  	expType = compileExpression();
+  	rType[rVal] = expType;
+  	rVal++;
+  }
+  
+  if(lVal != rVal){
+  	error(ERR_LVALUE_EXPRESSION_INCONSISTENCY, currentToken->lineNo, currentToken->colNo);
+  }
+  for(int i = 0; i < lVal; i++){
+  	checkTypeEquality(lType[i], rType[i]);
+  }
+  
+  pc = codeBlock->code + codeBlock->codeSize - 1;
+  while(pc->op != OP_LA){
+  	pc--;
+  }
+  pc = pc - lVal + 1;
+  for(int i = 0; i < lVal; i++){
+  	p[i] = pc->p;
+  	q[i] = pc->q;
+  	pc++;
+  	
+  }
+  genDCT(rVal+1);
+  
+  for(int i = 0; i < lVal; i++){
+  	genLA(p[i], q[i]);
+  	genINT(1);
+  	genST();
+  	genINT(1);
+  }
+
 }
 
 void compileCallSt(void) {

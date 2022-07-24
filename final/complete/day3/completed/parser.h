@@ -36,6 +36,7 @@ void compileParam(void);
 void compileStatements(void);
 void compileStatement(void);
 Type* compileLValue(void);
+Type* compileMultLValue(Object **resVar);
 void compileAssignSt(void);
 void compileCallSt(void);
 void compileGroupSt(void);
