@@ -7,8 +7,9 @@ Begin
     i:= if n>m then n else m;
     call writeI(i);
     call writeln;
-    i:=if n>m return n*n**m else return m*m**n;
-    call writeI(i);
+    call writeI(n**m/m);
+    call writeln;
+    call writeI(n**m%m);
     call writeln;
     i:=n>m? n-m:m-n;
     call writeI(i);

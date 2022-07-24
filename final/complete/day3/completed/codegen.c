@@ -179,13 +179,15 @@ void genML(void) {
   emitML(codeBlock);
 }
 
-void genPOW(void){
-  emitPOW(codeBlock);
+void genPW(void){
+  emitPW(codeBlock);
 }
 void genDV(void) {
   emitDV(codeBlock);
 }
-
+void genMD(void){
+  emitMD(codeBlock);
+}
 void genNEG(void) {
   emitNEG(codeBlock);
 }

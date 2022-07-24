@@ -235,6 +235,10 @@ Token* getToken(void) {
     token = makeToken(SB_QUESTION, lineNo, colNo);
     readChar();
     return token;
+  case CHAR_MODULE:
+    token = makeToken(SB_MODULE, lineNo, colNo);
+    readChar();
+    return token;
   default:
     token = makeToken(TK_NONE, lineNo, colNo);
     error(ERR_INVALID_SYMBOL, lineNo, colNo);
@@ -313,6 +317,7 @@ void printToken(Token *token) {
   case SB_LSEL: printf("SB_LSEL\n"); break;
   case SB_RSEL: printf("SB_RSEL\n"); break;
   case SB_QUESTION: printf("SB_QUESTION\n"); break;
+  case SB_MODULE: printf("SB_MODULE\n"); break;
   }
 }
 

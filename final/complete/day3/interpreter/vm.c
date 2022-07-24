@@ -200,7 +200,7 @@ int run(void) {
       if (checkStack()) 
 	      stack[t] *= stack[t+1];
       break;
-    case OP_POW:
+    case OP_PW:
       t--;
       if(checkStack())
         stack[t] = pow(stack[t],stack[t+1]);
@@ -208,9 +208,17 @@ int run(void) {
     case OP_DV: 
       t --;
       if (checkStack()) {
-	if (stack[t+1] == 0)
-	  ps = PS_DIVIDE_BY_ZERO;
-	else stack[t] /= stack[t+1];
+	      if (stack[t+1] == 0)
+	        ps = PS_DIVIDE_BY_ZERO;
+	      else stack[t] /= stack[t+1];
+      }
+      break;
+    case OP_MD:
+      t--;
+      if(checkStack()){
+        if (stack[t+1] == 0)
+	        ps = PS_MODULE_BY_ZERO;
+	      else stack[t] %= stack[t+1];
       }
       break;
     case OP_NEG:

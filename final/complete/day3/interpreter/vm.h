@@ -15,6 +15,7 @@
 #define PS_IO_ERROR       3
 #define PS_DIVIDE_BY_ZERO 4
 #define PS_STACK_OVERFLOW 5
+#define PS_MODULE_BY_ZERO 6
 
 typedef WORD* Memory;
 

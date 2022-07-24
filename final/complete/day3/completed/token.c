@@ -118,6 +118,7 @@ char *tokenToString(TokenType tokenType) {
   case SB_LSEL: return "\'(.\'";
   case SB_RSEL: return "\'.)\'";
   case SB_QUESTION: return "\'?\'";
+  case SB_MODULE: return "\'%\'";
   default: return "";
   }
 }

@@ -402,12 +402,6 @@ void compileStatement(void) {
   case KW_FOR:
     compileForSt();
     break;
-  case KW_SWITCH:
-    compileSwitchSt();
-    break;
-  case KW_BREAK:
-    eat(KW_BREAK);
-    break;
     // EmptySt needs to check FOLLOW tokens
   case SB_SEMICOLON:
   case KW_END:
@@ -513,7 +507,7 @@ void compileAssignSt(void) {
             break;
           default:
             break;
-          }
+        }
     
         conExpType = compileExpression();
         checkTypeEquality(expType, conExpType);
@@ -539,7 +533,7 @@ void compileAssignSt(void) {
             break;
           default:
             break;
-      }
+        }
         fjInstruction = genFJ(DC_VALUE);
         eat(SB_QUESTION);
         returnType1 = compileExpression();
@@ -550,11 +544,10 @@ void compileAssignSt(void) {
         checkTypeEquality(returnType1, returnType2);
         checkTypeEquality(returnType1, varType);
         updateJ(jInstruction, getCurrentCodeAddress());
-        genST();
-    } else {
+      } else {
         checkTypeEquality(varType, expType);
-        genST();
-    }
+      }
+      genST();
   }  
 }
 
@@ -662,38 +655,7 @@ void compileForSt(void) {
   genDCT(1);
 
 }
-void compileSwitchSt(void){
-  eat(KW_SWITCH);
-  compileExpression();
-  if(lookAhead->tokenType==KW_BEGIN) {
-    eat(KW_BEGIN);
-    switch(lookAhead->tokenType){
-      case KW_CASE:
-        while(lookAhead->tokenType==KW_CASE){
-          eat(KW_CASE);
-          compileConstant();
-          eat(SB_COLON);
-          compileStatements();
-        }
-      case KW_DEFAULT:
-        eat(KW_DEFAULT);
-        eat(SB_COLON);
-        compileStatements();
-        break;
-      default:
-        error(ERR_INVALID_STATEMENT, currentToken->lineNo, currentToken->colNo);
-        break;
-    }
-  } else {
-    error(ERR_INVALID_STATEMENT, currentToken->lineNo, currentToken->colNo);
-  }
-  if(lookAhead->tokenType==KW_END){
-    eat(KW_END);
-    eat(SB_SEMICOLON);
-  } else {
-    error(ERR_INVALID_STATEMENT, currentToken->lineNo, currentToken->colNo);
-  }
-}
+
 void compileArgument(Object* param) {
   Type* type;
 
@@ -930,6 +892,16 @@ Type* compileTerm2(Type* argType1) {
 
     resultType = compileTerm2(argType1);
     break;
+  case SB_MODULE:
+    eat(SB_MODULE);
+    checkIntType(argType1);
+    argType2 = compileFactor0();
+    checkIntType(argType2);
+
+    genMD();
+
+    resultType = compileTerm2(argType1);
+    break;
     // check the FOLLOW set
   case SB_PLUS:
   case SB_MINUS:
@@ -976,7 +948,7 @@ Type* compileTerm3(Type* argType1) {
     argType2 = compileFactor();
     checkIntType(argType2);
 
-    genPOW();
+    genPW();
 
     resultType = compileTerm2(argType1);
     break;
@@ -985,6 +957,7 @@ Type* compileTerm3(Type* argType1) {
   case SB_MINUS:
   case SB_TIMES:
   case SB_SLASH:
+  case SB_MODULE:
   case KW_TO:
   case KW_DO:
   case SB_RPAR:
