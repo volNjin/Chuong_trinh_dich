@@ -52,7 +52,9 @@ Type* compileExpression2(void);
 Type* compileExpression3(Type* argType1);
 Type* compileTerm(void);
 Type* compileTerm2(Type* argType2);
+Type* compileTerm3(Type* argType3);
 Type* compileFactor(void);
+Type* compileFactor0(void);
 Type* compileIndexes(Type* arrayType);
 
 int compile(char *fileName);

@@ -484,8 +484,8 @@ void compileAssignSt(void) {
       jInstruction = genJ(DC_VALUE);
       updateFJ(fjInstruction, getCurrentCodeAddress());
       returnType2 = compileExpression();
-      checkTypeEquality(returnType1, returnType2);
       checkTypeEquality(returnType1, varType);
+      checkTypeEquality(returnType2, varType);
       updateJ(jInstruction, getCurrentCodeAddress());
       genST();
   } else {
@@ -901,12 +901,10 @@ Type* compileExpression3(Type* argType1) {
 
 Type* compileTerm(void) {
   Type* type;
-  type = compileFactor();
+  type = compileFactor0();
   type = compileTerm2(type);
-
   return type;
 }
-
 Type* compileTerm2(Type* argType1) {
   Type* argType2;
   Type* resultType;
@@ -915,7 +913,7 @@ Type* compileTerm2(Type* argType1) {
   case SB_TIMES:
     eat(SB_TIMES);
     checkIntType(argType1);
-    argType2 = compileFactor();
+    argType2 = compileFactor0();
     checkIntType(argType2);
 
     genML();
@@ -925,13 +923,53 @@ Type* compileTerm2(Type* argType1) {
   case SB_SLASH:
     eat(SB_SLASH);
     checkIntType(argType1);
-    argType2 = compileFactor();
+    argType2 = compileFactor0();
     checkIntType(argType2);
 
     genDV();
 
     resultType = compileTerm2(argType1);
     break;
+    // check the FOLLOW set
+  case SB_PLUS:
+  case SB_MINUS:
+  case KW_TO:
+  case KW_DO:
+  case SB_RPAR:
+  case SB_COMMA:
+  case SB_COLON:
+  case SB_EQ:
+  case SB_NEQ:
+  case SB_LE:
+  case SB_LT:
+  case SB_GE:
+  case SB_GT:
+  case SB_QUESTION:
+  case SB_RSEL:
+  case SB_SEMICOLON:
+  case KW_END:
+  case KW_ELSE:
+  case KW_THEN:
+  case KW_RETURN:
+    resultType = argType1;
+    break;
+  default:
+    error(ERR_INVALID_TERM, lookAhead->lineNo, lookAhead->colNo);
+  }
+  return resultType;
+}
+Type* compileFactor0(void) {
+  Type* type;
+  type = compileFactor();
+  type = compileTerm3(type);
+  return type;
+}
+
+Type* compileTerm3(Type* argType1) {
+  Type* argType2;
+  Type* resultType;
+
+  switch (lookAhead->tokenType) {
   case SB_POWER:
     eat(SB_POWER);
     checkIntType(argType1);
@@ -945,6 +983,8 @@ Type* compileTerm2(Type* argType1) {
     // check the FOLLOW set
   case SB_PLUS:
   case SB_MINUS:
+  case SB_TIMES:
+  case SB_SLASH:
   case KW_TO:
   case KW_DO:
   case SB_RPAR:

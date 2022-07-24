@@ -1,16 +1,15 @@
 program test;
-var n: integer;
-    i: integer;
-    tmp: integer;     
+var n,m: integer;
+    i:integer;     
 Begin
     n:=readi;
-    tmp:=readi;
-    i:= if n>tmp then n else tmp;
+    m:=readi;
+    i:= if n>m then n else m;
     call writeI(i);
     call writeln;
-    i:=if n>tmp return tmp**n else return n**tmp;
+    i:=if n>m return n*n**m else return m*m**n;
     call writeI(i);
     call writeln;
-    i:=n>tmp? n-tmp:tmp-n;
+    i:=n>m? n-m:m-n;
     call writeI(i);
 End.
