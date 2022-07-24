@@ -1021,7 +1021,6 @@ Type* compileTerm3(Type* argType1) {
   case SB_POWER:
     eat(SB_POWER);
   	argType2 = compileFactor();
-    //genPW();
       checkIntType(argType2);
       genCV();
       genDCT(2);
