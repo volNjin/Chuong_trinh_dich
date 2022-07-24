@@ -1012,10 +1012,12 @@ Type* compileFactor0(void) {
 Type* compileTerm3(Type* argType1) {
   Type* argType2;
   Type* resultType;
+  CodeAddress beginLoop;
+  Instruction *fjInst;
 
   switch (lookAhead->tokenType) {
   case SB_POWER:
-    eat(SB_POWER);
+    /*eat(SB_POWER);
     checkIntType(argType1);
     argType2 = compileFactor();
     checkIntType(argType2);
@@ -1023,7 +1025,31 @@ Type* compileTerm3(Type* argType1) {
     genPW();
 
     resultType = compileTerm2(argType1);
-    break;
+    break;*/
+    eat(SB_POWER);
+  	argType2 = compileFactor();
+    checkIntType(argType2);
+      genCV();
+      genDCT(2);
+      genCV();
+      genDCT(2);
+      genLC(1);
+      genINT(2);
+      beginLoop = getCurrentCodeAddress();
+      genCV();
+      genLC(0);
+      genGT();
+      fjInst = genFJ(DC_VALUE);
+      genDCT(1);
+      genML();
+      genINT(2);
+      genLC(1);
+      genSB();
+      genJ(beginLoop);
+      updateFJ(fjInst, getCurrentCodeAddress());
+      genDCT(2);
+  	resultType = compileTerm2(argType1);
+  	break;
     // check the FOLLOW set
   case SB_PLUS:
   case SB_MINUS:

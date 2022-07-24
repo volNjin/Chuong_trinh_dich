@@ -4,13 +4,5 @@ var n,m: integer;
 Begin
     n:=readi;
     m:=readi;
-    switch n+m 
-        Begin
-            case 1: call writeI(n); 
-                    call writeln;
-                    break;
-            default: call writeI(m); 
-                    call writeln;
-                    break;
-        end;
+    call writeI(n**m);
 End.
