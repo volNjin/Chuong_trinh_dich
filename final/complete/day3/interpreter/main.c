@@ -96,7 +96,7 @@ int main(int argc, char *argv[]) {
     printf("Runtime error: Divide by zero!\n");
     break;
   case PS_MODULE_BY_ZERO:
-    printf("Runtime error: MODULE by zero!\n");
+    printf("Runtime error: Module by zero!\n");
     break;
   case PS_STACK_OVERFLOW:
     printf("Runtime error: Stack overflow!\n");

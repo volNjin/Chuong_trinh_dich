@@ -17,6 +17,9 @@
 Token *currentToken;
 Token *lookAhead;
 
+Instruction *breakInstruction[100];
+int breakInstructionCount = 0;
+
 extern Type* intType;
 extern Type* charType;
 extern SymTab* symtab;
@@ -402,10 +405,16 @@ void compileStatement(void) {
   case KW_FOR:
     compileForSt();
     break;
+  case KW_SWITCH:
+    compileSwitchSt();
+  case KW_BREAK:
+    compileBreakSt();
     // EmptySt needs to check FOLLOW tokens
   case SB_SEMICOLON:
   case KW_END:
   case KW_ELSE:
+  case KW_CASE:
+  case KW_DEFAULT:
     break;
     // Error occurs
   default:
@@ -656,6 +665,67 @@ void compileForSt(void) {
 
 }
 
+void compileCaseSt(Type *argType)
+{
+  eat(KW_CASE);
+  genCV();
+  ConstantValue *constantValue = compileConstant();
+  Type type2;
+  type2.typeClass = constantValue->type;
+  checkTypeEquality(argType, &type2);
+  eat(SB_COLON);
+  if (constantValue->type == TP_INT)
+  {
+    genLC(constantValue->intValue);
+  }
+  else if (constantValue->type == TP_CHAR)
+  {
+    genLC(constantValue->charValue);
+  }
+
+  genEQ();
+  Instruction *fjInstruction = genFJ(DC_VALUE);
+  compileStatements();
+  updateFJ(fjInstruction, getCurrentCodeAddress());
+  
+  if (lookAhead->tokenType == KW_CASE)
+  {
+    compileCaseSt(argType);
+  }
+}
+
+void compileDefaultSt(void)
+{
+  eat(KW_DEFAULT);
+  eat(SB_COLON);
+  compileStatements();
+}
+
+void compileBreakSt(void)
+{
+  if (lookAhead->tokenType == KW_BREAK)
+  {
+    eat(KW_BREAK);
+    breakInstruction[breakInstructionCount++] = genJ(DC_VALUE);
+  }
+}
+
+void compileSwitchSt(void)
+{
+  Type *type1;
+  eat(KW_SWITCH);
+  type1 = compileExpression();
+  checkBasicType(type1);
+  eat(KW_BEGIN);
+  compileCaseSt(type1);
+  compileDefaultSt();
+  eat(KW_END);
+  for (int i = 0; i < breakInstructionCount; i++)
+  {
+    updateJ(breakInstruction[i], getCurrentCodeAddress());
+  }
+}
+
 void compileArgument(Object* param) {
   Type* type;
 
@@ -849,6 +919,7 @@ Type* compileExpression3(Type* argType1) {
   case SB_QUESTION:
   case SB_RSEL:
   case SB_SEMICOLON:
+  case KW_BEGIN:
   case KW_END:
   case KW_ELSE:
   case KW_THEN:
@@ -919,6 +990,7 @@ Type* compileTerm2(Type* argType1) {
   case SB_QUESTION:
   case SB_RSEL:
   case SB_SEMICOLON:
+  case KW_BEGIN:
   case KW_END:
   case KW_ELSE:
   case KW_THEN:
@@ -972,6 +1044,7 @@ Type* compileTerm3(Type* argType1) {
   case SB_QUESTION:
   case SB_RSEL:
   case SB_SEMICOLON:
+  case KW_BEGIN:
   case KW_END:
   case KW_ELSE:
   case KW_THEN:
