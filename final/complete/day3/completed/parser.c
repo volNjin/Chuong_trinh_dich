@@ -457,10 +457,17 @@ void compileAssignSt(void) {
   if(lookAhead->tokenType==KW_IF){
       eat(KW_IF);
       compileCondition();
-      eat(KW_THEN);
+      if(lookAhead->tokenType==KW_THEN){
+        eat(KW_THEN);
+      } else if(lookAhead->tokenType==KW_RETURN){
+        eat(KW_RETURN);
+      }
       fjInstruction = genFJ(DC_VALUE);
       returnType1 = compileExpression();
       eat(KW_ELSE);
+      if(lookAhead->tokenType==KW_RETURN){
+        eat(KW_RETURN);
+      }
       jInstruction = genJ(DC_VALUE);
       updateFJ(fjInstruction, getCurrentCodeAddress());
       returnType2 = compileExpression();
@@ -870,6 +877,7 @@ Type* compileExpression3(Type* argType1) {
   case KW_END:
   case KW_ELSE:
   case KW_THEN:
+  case KW_RETURN:
     resultType = argType1;
     break;
   default:
@@ -941,6 +949,7 @@ Type* compileTerm2(Type* argType1) {
   case KW_END:
   case KW_ELSE:
   case KW_THEN:
+  case KW_RETURN:
     resultType = argType1;
     break;
   default:

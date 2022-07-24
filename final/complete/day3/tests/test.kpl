@@ -7,4 +7,7 @@ Begin
     tmp:=readi;
     i:= if n>tmp then n else tmp;
     call writeI(i);
+    call writeln;
+    i:=if n>tmp return tmp else return n;
+    call writeI(i);
 End.

@@ -290,6 +290,7 @@ void printToken(Token *token) {
   case KW_CASE: printf("KW_CASE\n"); break;
   case KW_DEFAULT: printf("DEFAULT\n"); break;
   case KW_BREAK: printf("KW_BREAK\n"); break;
+  case KW_RETURN: printf("KW_RETURN\n"); break;
 
   case SB_SEMICOLON: printf("SB_SEMICOLON\n"); break;
   case SB_COLON: printf("SB_COLON\n"); break;
