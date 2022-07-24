@@ -966,11 +966,13 @@ Type* compileTerm2(Type* argType1) {
   case SB_MODULE:
     eat(SB_MODULE);
     checkIntType(argType1);
+    genCV();
     argType2 = compileFactor0();
     checkIntType(argType2);
-
-    genMD();
-
+    genDV();
+    genINT(1);
+    genML();
+    genSB();
     resultType = compileTerm2(argType1);
     break;
     // check the FOLLOW set
@@ -1017,18 +1019,10 @@ Type* compileTerm3(Type* argType1) {
 
   switch (lookAhead->tokenType) {
   case SB_POWER:
-    /*eat(SB_POWER);
-    checkIntType(argType1);
-    argType2 = compileFactor();
-    checkIntType(argType2);
-
-    genPW();
-
-    resultType = compileTerm2(argType1);
-    break;*/
     eat(SB_POWER);
   	argType2 = compileFactor();
-    checkIntType(argType2);
+    //genPW();
+      checkIntType(argType2);
       genCV();
       genDCT(2);
       genCV();

@@ -4,5 +4,5 @@ var n,m: integer;
 Begin
     n:=readi;
     m:=readi;
-    call writeI(n**m);
+    call writeI(n%m);
 End.
