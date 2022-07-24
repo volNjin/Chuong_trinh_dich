@@ -99,20 +99,33 @@ void compileTypeDecls(void) {
 }
 
 void compileVarDecls(void) {
-  Object* varObj;
+  Object* varObj[20];
   Type* varType;
+  int varCount=0;
 
   if (lookAhead->tokenType == KW_VAR) {
     eat(KW_VAR);
     do {
-      eat(TK_IDENT);
-      checkFreshIdent(currentToken->string);
-      varObj = createVariableObject(currentToken->string);
+       do {
+        if(lookAhead->tokenType == SB_COMMA && varCount > 0) {
+          eat(SB_COMMA);
+        } else if(lookAhead->tokenType == SB_COMMA && varCount == 0) {
+          error(ERR_INVALID_SYMBOL, lookAhead->lineNo, lookAhead->colNo);
+        } 
+        eat(TK_IDENT);
+        checkFreshIdent(currentToken->string);
+        varObj[varCount] = createVariableObject(currentToken->string);
+        varCount++;
+      } while(lookAhead->tokenType == SB_COMMA);
+
       eat(SB_COLON);
       varType = compileType();
-      varObj->varAttrs->type = varType;
-      declareObject(varObj);      
+      for(int i = 0; i < varCount; i++) {
+        varObj[i]->varAttrs->type = duplicateType(varType);
+        declareObject(varObj[i]);
+      }      
       eat(SB_SEMICOLON);
+      varCount = 0;
     } while (lookAhead->tokenType == TK_IDENT);
   } 
 }

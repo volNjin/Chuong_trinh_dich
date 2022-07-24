@@ -8,6 +8,9 @@ Begin
     i:= if n>tmp then n else tmp;
     call writeI(i);
     call writeln;
-    i:=if n>tmp return tmp else return n;
+    i:=if n>tmp return tmp**n else return n**tmp;
+    call writeI(i);
+    call writeln;
+    i:=n>tmp? n-tmp:tmp-n;
     call writeI(i);
 End.
