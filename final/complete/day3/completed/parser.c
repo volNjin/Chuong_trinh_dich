@@ -423,6 +423,7 @@ void compileStatement(void) {
   case KW_ELSE:
   case KW_CASE:
   case KW_DEFAULT:
+  case KW_UNTIL:
     break;
     // Error occurs
   default:
@@ -685,7 +686,7 @@ void compileWhileSt(void) {
 
 void compileDoSt(void){
   CodeAddress beginDo;
-  Instruction* fjInstruction;
+  Instruction* jInstruction;
 
   beginDo = getCurrentCodeAddress();
   eat(KW_DO);
@@ -693,9 +694,9 @@ void compileDoSt(void){
 
   eat(KW_WHILE);
   compileCondition();
-  fjInstruction = genFJ(DC_VALUE);
-  genJ(beginDo);
-  updateFJ(fjInstruction, getCurrentCodeAddress());
+  genFJ(beginDo);
+  jInstruction=genJ(DC_VALUE);
+  updateJ(jInstruction, getCurrentCodeAddress());
 }
 
 void compileRepeatSt(void){

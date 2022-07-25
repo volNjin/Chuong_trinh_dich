@@ -1,16 +1,11 @@
 program test;
-var n,result: integer;
-    i:integer;     
+var i:integer;     
 Begin
-    n:=readi;
-    result:=1;
     i:=0;
-    if n!=0 then
     repeat
     Begin
-        result:=2*result;
+        call writeI(i);
         i:=i+1;
     end
-    until i=n;
-    call writeI(result);
+    until i>10;
 End.
