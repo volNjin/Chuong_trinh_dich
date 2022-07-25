@@ -683,25 +683,9 @@ void compileWhileSt(void) {
   genJ(beginWhile);
   updateFJ(fjInstruction, getCurrentCodeAddress());
 }
-
-void compileDoSt(void){
-  CodeAddress beginDo;
-  Instruction* fjInstruction;
-
-  beginDo = getCurrentCodeAddress();
-  eat(KW_DO);
-  compileStatement();
-
-  eat(KW_WHILE);
-  compileCondition();
-  genJ(beginDo);
-  fjInstruction=genFJ(DC_VALUE);
-  updateFJ(fjInstruction, getCurrentCodeAddress());
-}
-
+void compileDoSt(){};
 void compileRepeatSt(void){
   CodeAddress beginRepeat;
-  Instruction* jInstruction;
 
   beginRepeat = getCurrentCodeAddress();
   eat(KW_REPEAT);
@@ -710,8 +694,6 @@ void compileRepeatSt(void){
   eat(KW_UNTIL);
   compileCondition();
   genFJ(beginRepeat);
-  jInstruction=genJ(DC_VALUE);
-  updateJ(jInstruction, getCurrentCodeAddress());
 }
 
 void compileForSt(void) {
