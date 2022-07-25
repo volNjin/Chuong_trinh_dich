@@ -407,6 +407,12 @@ void compileStatement(void) {
   case KW_FOR:
     compileForSt();
     break;
+  case KW_DO:
+    compileDoSt();
+    break;
+  case KW_REPEAT:
+    compileRepeatSt();
+    break;
   case KW_SWITCH:
     compileSwitchSt();
   case KW_BREAK:
@@ -458,42 +464,6 @@ Type* compileLValue(void) {
     error(ERR_INVALID_LVALUE,currentToken->lineNo, currentToken->colNo);
   }
 
-  return varType;
-}
-
-Type* compileMultLValue(Object **resVar) {
-  Object* var;
-  Type* varType;
-
-  eat(TK_IDENT);
-  
-  var = checkDeclaredLValueIdent(currentToken->string);
-
-  switch (var->kind) {
-  case OBJ_VARIABLE:
-    genVariableAddress(var);
-
-    if (var->varAttrs->type->typeClass == TP_ARRAY) {
-      varType = compileIndexes(var->varAttrs->type);
-    }
-    else
-      varType = var->varAttrs->type;
-    break;
-  case OBJ_PARAMETER:
-    if (var->paramAttrs->kind == PARAM_VALUE)
-      genParameterAddress(var);
-    else genParameterValue(var);
-
-    varType = var->paramAttrs->type;
-    break;
-  case OBJ_FUNCTION:
-    genReturnValueAddress(var);
-    varType = var->funcAttrs->returnType;
-    break;
-  default: 
-    error(ERR_INVALID_LVALUE,currentToken->lineNo, currentToken->colNo);
-  }
-  *resVar = var;
   return varType;
 }
 
@@ -713,6 +683,35 @@ void compileWhileSt(void) {
   updateFJ(fjInstruction, getCurrentCodeAddress());
 }
 
+void compileDoSt(void){
+  CodeAddress beginDo;
+  Instruction* fjInstruction;
+
+  beginDo = getCurrentCodeAddress();
+  eat(KW_DO);
+  compileStatement();
+
+  eat(KW_WHILE);
+  compileCondition();
+  fjInstruction = genFJ(DC_VALUE);
+  genJ(beginDo);
+  updateFJ(fjInstruction, getCurrentCodeAddress());
+}
+
+void compileRepeatSt(void){
+  CodeAddress beginRepeat;
+  Instruction* jInstruction;
+
+  beginRepeat = getCurrentCodeAddress();
+  eat(KW_REPEAT);
+  compileStatement();
+
+  eat(KW_UNTIL);
+  compileCondition();
+  genFJ(beginRepeat);
+  jInstruction=genJ(DC_VALUE);
+  updateJ(jInstruction, getCurrentCodeAddress());
+}
 void compileForSt(void) {
   CodeAddress beginLoop;
   Instruction* fjInstruction;

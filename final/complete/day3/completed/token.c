@@ -32,6 +32,8 @@ struct {
   {"DO", KW_DO},
   {"FOR", KW_FOR},
   {"TO", KW_TO},
+  {"REPEAT", KW_REPEAT},
+  {"UNTIL", KW_UNTIL},
   {"SWITCH", KW_SWITCH},
   {"CASE", KW_CASE},
   {"BREAK", KW_BREAK},

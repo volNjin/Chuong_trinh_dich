@@ -43,6 +43,8 @@ void compileGroupSt(void);
 void compileIfSt(void);
 void compileElseSt(void);
 void compileWhileSt(void);
+void compileDoSt(void);
+void compileRepeatSt(void);
 void compileForSt(void);
 void compileSwitchSt(void);
 void compileCaseSt(Type* arrayType);

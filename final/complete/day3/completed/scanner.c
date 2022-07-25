@@ -288,6 +288,8 @@ void printToken(Token *token) {
   case KW_ELSE: printf("KW_ELSE\n"); break;
   case KW_WHILE: printf("KW_WHILE\n"); break;
   case KW_DO: printf("KW_DO\n"); break;
+  case KW_REPEAT: printf("KW_REPEAT\n"); break;
+  case KW_UNTIL: printf("KW_UNTIL\n"); break;
   case KW_FOR: printf("KW_FOR\n"); break;
   case KW_TO: printf("KW_TO\n"); break;
   case KW_SWITCH: printf("KW_SWITCH\n"); break;
